@@ -61,7 +61,8 @@ end
 local function CheckIfBottleInHand(User, SourceItem)
 
     local potionBottleList = alchemy.bottleList
-    local beverageBottleList = {517, 1315, 1316, 1318, 1319, 1320, 1321, 1322,1323, 783, 784, 785, 786, 787, 788, 789, 791, 2500, 2496, 2497, 2501, 2499,3720,3721,3722}
+    local beverageBottleList = {517, 1315, 1316, 1318, 1319, 1320, 1321, 1322, 1323, 783, 784, 785, 786, 787, 788,
+        789, 791, 2500, 2496, 2497, 2501, 2499, 3720, 3721, 3722, 1917}
 
     local bottleItem = common.GetTargetItem(User, SourceItem)
     if bottleItem == nil then
@@ -208,31 +209,35 @@ local function WriteContainerLabel(User,SourceItem)
 end
 
 local function WriteLabel(User,SourceItem)
+    local title = getText(User, "Flaschenetikettierung", "Bottle labelling")
+    local infoText = getText(
+        User,
+        "Füge hier den Text ein, mit dem du das Etikett beschriften willst.",
+        "Insert the text you want to write on the label."
+    )
 
-    local title  = getText(User, "Flaschenetikettierung", "Bottle labelling")
-    local infoText = getText(User, "Füge hier den Text ein, mit dem du das Etikett beschriften willst.", "Insert the text you want to write on the label.")
-
-    -- input dialog
     local callback = function(dialog)
-        if not dialog:getSuccess() then
-            -- player canceled the dialog; nothing
-        else
-            local bottle = CheckIfBottleInHand(User, SourceItem) -- check for the bottle again
+        if dialog:getSuccess() then
+            local bottle = CheckIfBottleInHand(User, SourceItem)
+
             if bottle then
-                --if bottle.number > 1 then
-                --    User:inform("Du kannst immer nur eine Flasche beschriften.","You can label only one bottle at once.")
-                --    return
-                --end
                 local labelText = dialog:getInput()
-                lookat.SetSpecialDescription(bottle,labelText,labelText)
+                lookat.SetSpecialDescription(
+                    bottle, "Flaschenetikett: '"..labelText.."'", "Bottle label: '"..labelText.."'"
+                )
                 world:changeItem(bottle)
-                User:inform("Du beschriftest die Flasche mit '"..labelText.."'.","You label the bottle as '"..labelText.."'.")
-                
+
+                User:inform(
+                    "Du beschriftest die Flasche mit '"..labelText.."'.", "You label the bottle as '"..labelText.."'."
+                )
             else
-                User:inform("Du brauchst eine Flasche, um diese zu beschriften.","You need a bottle if you want to label one.")
+                User:inform(
+                    "Du brauchst eine Flasche, um diese zu beschriften.", "You need a bottle if you want to label one."
+                )
             end
         end
     end
+
     local dialog = InputDialog(title, infoText, false, 100, callback)
     User:requestInputDialog(dialog)
 end
